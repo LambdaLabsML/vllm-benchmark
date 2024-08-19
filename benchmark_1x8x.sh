@@ -1,12 +1,9 @@
 #!/bin/sh
 
-HF_TOKEN="<your-hf-token>"
-GPU_NAME="A100-80GB-SXM"
-
 # Benchmark 1x
 NUM_GPU=1
 GPU_DEVICES='"device=0"'
-SHM_SIZE="2000g"
+SHM_SIZE=2000g
 docker run --gpus $GPU_DEVICES \
     --rm \
     --shm-size=$SHM_SIZE \
@@ -21,7 +18,7 @@ docker run --gpus $GPU_DEVICES \
 # Benchmark 2x
 NUM_GPU=2
 GPU_DEVICES='"device=0,1"'
-SHM_SIZE="4000g"
+SHM_SIZE=4000g
 docker run --gpus $GPU_DEVICES \
     --rm \
     --shm-size=$SHM_SIZE \
@@ -36,7 +33,7 @@ docker run --gpus $GPU_DEVICES \
 # Benchmark 4x
 NUM_GPU=4
 GPU_DEVICES='"device=0,1,2,3"'
-SHM_SIZE="8000g"
+SHM_SIZE=8000g
 docker run --gpus $GPU_DEVICES \
     --rm \
     --shm-size=$SHM_SIZE \
@@ -51,7 +48,7 @@ docker run --gpus $GPU_DEVICES \
 # Benchmark 8x
 NUM_GPU=8
 GPU_DEVICES=all
-SHM_SIZE="16000g"
+SHM_SIZE=16000g
 docker run --gpus $GPU_DEVICES \
     --rm \
     --shm-size=$SHM_SIZE \
