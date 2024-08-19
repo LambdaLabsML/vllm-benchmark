@@ -1,61 +1,28 @@
 #!/bin/sh
 
-# Benchmark 1x
-NUM_GPU=1
-GPU_DEVICES='"device=0"'
-SHM_SIZE=2000g
-docker run --gpus $GPU_DEVICES \
-    --rm \
-    --shm-size=$SHM_SIZE \
-    -v ~/.cache/huggingface:/root/.cache/huggingface \
-    -v ./:/vllm-workspace \
-    --entrypoint /bin/bash \
-    vllm/vllm-openai:v0.5.4 \
-    -c "huggingface-cli login --token $HF_TOKEN && \
-    cd /vllm-workspace && \
-    python3 benchmark.py --tasks all_tasks.yaml --num_gpus $NUM_GPU --name_gpu $GPU_NAME"
+# Function to run the benchmark
+run_benchmark() {
+  NUM_GPU=$1
+  GPU_DEVICES=$2
+  SHM_SIZE=$3
 
-# Benchmark 2x
-NUM_GPU=2
-GPU_DEVICES='"device=0,1"'
-SHM_SIZE=4000g
-docker run --gpus $GPU_DEVICES \
-    --rm \
-    --shm-size=$SHM_SIZE \
-    -v ~/.cache/huggingface:/root/.cache/huggingface \
-    -v ./:/vllm-workspace \
-    --entrypoint /bin/bash \
-    vllm/vllm-openai:v0.5.4 \
-    -c "huggingface-cli login --token $HF_TOKEN && \
-    cd /vllm-workspace && \
-    python3 benchmark.py --tasks all_tasks.yaml --num_gpus $NUM_GPU --name_gpu $GPU_NAME"
+  for NUM_PROMPTS in 10 20 40 80 160 320
+  do
+    docker run --gpus $GPU_DEVICES \
+      --rm \
+      --shm-size=$SHM_SIZE \
+      -v ~/.cache/huggingface:/root/.cache/huggingface \
+      -v ./:/vllm-workspace \
+      --entrypoint /bin/bash \
+      vllm/vllm-openai:v0.5.4 \
+      -c "huggingface-cli login --token $HF_TOKEN && \
+      cd /vllm-workspace && \
+      python3 benchmark.py --tasks all_tasks.yaml --num_gpus $NUM_GPU --name_gpu $GPU_NAME --num_prompts $NUM_PROMPTS"
+  done
+}
 
-# Benchmark 4x
-NUM_GPU=4
-GPU_DEVICES='"device=0,1,2,3"'
-SHM_SIZE=8000g
-docker run --gpus $GPU_DEVICES \
-    --rm \
-    --shm-size=$SHM_SIZE \
-    -v ~/.cache/huggingface:/root/.cache/huggingface \
-    -v ./:/vllm-workspace \
-    --entrypoint /bin/bash \
-    vllm/vllm-openai:v0.5.4 \
-    -c "huggingface-cli login --token $HF_TOKEN && \
-    cd /vllm-workspace && \
-    python3 benchmark.py --tasks all_tasks.yaml --num_gpus $NUM_GPU --name_gpu $GPU_NAME"
-
-# Benchmark 8x
-NUM_GPU=8
-GPU_DEVICES=all
-SHM_SIZE=16000g
-docker run --gpus $GPU_DEVICES \
-    --rm \
-    --shm-size=$SHM_SIZE \
-    -v ~/.cache/huggingface:/root/.cache/huggingface \
-    -v ./:/vllm-workspace \
-    --entrypoint /bin/bash \
-    vllm/vllm-openai:v0.5.4 \
-    -c "huggingface-cli login --token $HF_TOKEN && \
-    cd /vllm-workspace && \
-    python3 benchmark.py --tasks all_tasks.yaml --num_gpus $NUM_GPU --name_gpu $GPU_NAME"
+# Benchmark configurations
+run_benchmark 1 '"device=0"' "2000g"
+run_benchmark 2 '"device=0,1"' "4000g"
+run_benchmark 4 '"device=0,1,2,3"' "8000g"
+run_benchmark 8 "all" "16000g"

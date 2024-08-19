@@ -22,7 +22,7 @@ def read_output(pipe):
     finally:
         pipe.close()
 
-def run_validation(model, max_model_len, num_gpus, output_json, vllm_start_timeout, dataset_name, dataset_path, num_prompts):
+def run_benchmark(model, max_model_len, num_gpus, output_json, vllm_start_timeout, dataset_name, dataset_path, num_prompts):
 
     # Start the server and capture its output for error detection
     server_cmd = ["python3", "-m", "vllm.entrypoints.openai.api_server", "--model", model, "--max-model-len", str(max_model_len)]
@@ -124,7 +124,7 @@ def main(args):
     # Extract the list of tasks
     tasks = data.get('tasks', [])
 
-    output_dir = f"validation/{num_gpus}x{name_gpu}GB"
+    output_dir = f"results/prompt_{num_prompts}/{num_gpus}x{name_gpu}"
     os.makedirs(output_dir, exist_ok=True)
 
     flag_failed = False
@@ -151,7 +151,7 @@ def main(args):
                 last_model = task["model"]
                 flag_failed = False
         try:
-            exit_code = run_validation(model, max_model_len, num_gpus, output_json, vllm_start_timeout, dataset_name, dataset_path, num_prompts)
+            exit_code = run_benchmark(model, max_model_len, num_gpus, output_json, vllm_start_timeout, dataset_name, dataset_path, num_prompts)
             print(f"Benchmark test completed with exit code: {exit_code}\n")
             if exit_code != 0:
                 flag_failed = True
@@ -167,7 +167,7 @@ def main(args):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Script to run validation with configurable parameters.")
+    parser = argparse.ArgumentParser(description="Script to run benchmark with configurable parameters.")
 
     parser.add_argument("--tasks", type=str, default='all_tasks.yaml', help="Path to the tasks YAML file.")
     parser.add_argument("--num_gpus", type=int, default=1, help="Number of GPUs to use.")
