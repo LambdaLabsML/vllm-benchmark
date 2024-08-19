@@ -136,6 +136,10 @@ def main(args):
         max_model_len = task["max_model_len"]
         output_json = output_dir + "/" + model.split("/")[1] + "_tp" + str(num_gpus) + "_len" + str(max_model_len) + ".json"
         
+        if os.path.exists(output_json):
+            print("Previous benchmark result exists. Skip ...")
+            continue
+
         if flag_failed == True:
             if last_model == task["model"]:
                 data = {
