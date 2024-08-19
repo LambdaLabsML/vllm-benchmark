@@ -12,9 +12,12 @@ list_models = [
 ]
 
 for model_name in list_models:
-    print("--------------------------------------------------------------------------------")
-    print(f"Caching model {model_name} ...")
-    print("--------------------------------------------------------------------------------")
-    # This will download and cache the model and tokenizer
-    model = AutoModel.from_pretrained(model_name)
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    try:
+      print("--------------------------------------------------------------------------------")
+      print(f"Caching model {model_name} ...")
+      print("--------------------------------------------------------------------------------")
+      # This will download and cache the model and tokenizer
+      model = AutoModel.from_pretrained(model_name)
+      tokenizer = AutoTokenizer.from_pretrained(model_name)
+    except Exception as e:
+        print(f"Error caching model {model_name}\n")
