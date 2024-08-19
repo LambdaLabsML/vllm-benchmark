@@ -8,8 +8,7 @@ list_models = [
   "mistralai/Mixtral-8x22B-Instruct-v0.1",
   "mistralai/Mistral-Nemo-Instruct-2407",
   "mistralai/Mistral-Large-Instruct-2407",
-  "meta-llama/Meta-Llama-3.1-405B-FP8"
-    "NousResearch/Hermes-3-Llama-3.1-405B-FP8"
+  "NousResearch/Hermes-3-Llama-3.1-405B-FP8"
 ]
 
 for model_name in list_models:
