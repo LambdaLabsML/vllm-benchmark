@@ -22,7 +22,7 @@ run_benchmark() {
 }
 
 # Benchmark configurations
-run_benchmark 1 '"device=0"' "2000g"
-run_benchmark 2 '"device=0,1"' "4000g"
-run_benchmark 4 '"device=0,1,2,3"' "8000g"
-run_benchmark 8 "all" "16000g"
+run_benchmark 1 '"device=0"' "1600g"
+run_benchmark 2 '"device=0,1"' "1600g"
+run_benchmark 4 '"device=0,1,2,3"' "1600g"
+run_benchmark 8 "all" "1600g"

@@ -14,7 +14,7 @@ wget https://huggingface.co/datasets/anon8231489123/ShareGPT_Vicuna_unfiltered/r
 ## Cache Model
 ```bash
 HF_TOKEN=<your-hf-token>
-SHM_SIZE=2000g
+SHM_SIZE=1600g
 docker run --gpus all \
     --rm \
     --shm-size=$SHM_SIZE \
