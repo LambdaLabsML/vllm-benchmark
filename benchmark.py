@@ -103,7 +103,7 @@ def run_validation(model, max_model_len, num_gpus, output_json, vllm_start_timeo
 def main(args):
     tasks=args.tasks
     num_gpus=args.num_gpus
-    vram=args.vram
+    name_gpu=args.name_gpu
     num_prompts=args.num_prompts
     dataset_name=args.dataset_name
     dataset_path=args.dataset_path
@@ -111,7 +111,7 @@ def main(args):
 
     print(f"Tasks file: {tasks}")
     print(f"Number of GPUs: {num_gpus}")
-    print(f"VRAM: {vram}GB")
+    print(f"Name GPU: {name_gpu}")
     print(f"Number of prompts: {num_prompts}")
     print(f"Dataset name: {dataset_name}")
     print(f"Dataset path: {dataset_path}")
@@ -124,7 +124,7 @@ def main(args):
     # Extract the list of tasks
     tasks = data.get('tasks', [])
 
-    output_dir = f"validation/{num_gpus}x{vram}GB"
+    output_dir = f"validation/{num_gpus}x{name_gpu}GB"
     os.makedirs(output_dir, exist_ok=True)
 
     flag_failed = False
@@ -171,7 +171,7 @@ if __name__ == "__main__":
 
     parser.add_argument("--tasks", type=str, default='all_tasks.yaml', help="Path to the tasks YAML file.")
     parser.add_argument("--num_gpus", type=int, default=1, help="Number of GPUs to use.")
-    parser.add_argument("--vram", type=int, default=80, help="Amount of VRAM in GB per GPU.")
+    parser.add_argument("--name_gpu", type=str, default="A100-80GB-SXM", help="Name of GPU")
     parser.add_argument("--num_prompts", type=int, default=40, help="Number of prompts to use for benchmarking.")
     parser.add_argument("--dataset_name", type=str, default="sharegpt", help="Name of the dataset to use.")
     parser.add_argument("--dataset_path", type=str, default="./ShareGPT_V3_unfiltered_cleaned_split.json", help="Path to the dataset JSON file.")
