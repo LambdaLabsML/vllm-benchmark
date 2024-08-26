@@ -22,10 +22,18 @@ def read_output(pipe):
     finally:
         pipe.close()
 
-def run_benchmark(model, max_model_len, num_gpus, gpu_memory_utilization, output_json, vllm_start_timeout, dataset_name, dataset_path, num_prompts):
+def run_benchmark(model, max_model_len, num_gpus, gpu_memory_utilization, output_json, vllm_start_timeout, dataset_name, dataset_path, num_prompts, max_num_seqs):
 
     # Start the server and capture its output for error detection
-    server_cmd = ["python3", "-m", "vllm.entrypoints.openai.api_server", "--model", model, "--max-model-len", str(max_model_len), "--gpu-memory-utilization", str(gpu_memory_utilization)]
+    server_cmd = [
+        "python3",
+        "-m", "vllm.entrypoints.openai.api_server",
+        "--model", model,
+        "--max-model-len", str(max_model_len),
+        "--gpu-memory-utilization", str(gpu_memory_utilization),
+        "--max-num-seqs", str(max_num_seqs)
+    ]
+    
     if num_gpus > 1:
         server_cmd.append("--tensor-parallel-size")
         server_cmd.append(str(num_gpus))
@@ -110,6 +118,7 @@ def main(args):
     dataset_path=args.dataset_path
     vllm_start_timeout=args.vllm_start_timeout
     gpu_memory_utilization=args.gpu_memory_utilization
+    max_num_seqs=args.max_num_seqs
 
     print(f"Tasks file: {tasks}")
     print(f"Number of GPUs: {num_gpus}")
@@ -119,6 +128,7 @@ def main(args):
     print(f"Dataset path: {dataset_path}")
     print(f"VLLM start timeout: {vllm_start_timeout} seconds")
     print(f"Fraction of GPU: {gpu_memory_utilization}")
+    print(f"Max Num of Sequences: {max_num_seqs}")
 
     # Load the YAML file
     with open(tasks, 'r') as file:
@@ -158,7 +168,7 @@ def main(args):
                 last_model = task["model"]
                 flag_failed = False
         try:
-            exit_code = run_benchmark(model, max_model_len, num_gpus, gpu_memory_utilization, output_json, vllm_start_timeout, dataset_name, dataset_path, num_prompts)
+            exit_code = run_benchmark(model, max_model_len, num_gpus, gpu_memory_utilization, output_json, vllm_start_timeout, dataset_name, dataset_path, num_prompts, max_num_seqs)
             print(f"Benchmark test completed with exit code: {exit_code}\n")
             if exit_code != 0:
                 flag_failed = True
@@ -183,6 +193,7 @@ if __name__ == "__main__":
     parser.add_argument("--dataset_name", type=str, default="sharegpt", help="Name of the dataset to use.")
     parser.add_argument("--dataset_path", type=str, default="./ShareGPT_V3_unfiltered_cleaned_split.json", help="Path to the dataset JSON file.")
     parser.add_argument("--vllm_start_timeout", type=int, default=600, help="Timeout in seconds for starting the VLLM server.")
+    parser.add_argument("--max-num-seqs", type=int, default=1024, help="Maximum number of sequences per iteration. Practically the max possible batch size.")
     parser.add_argument("--gpu-memory-utilization", type=float, default=0.95, help="Fraction of GPU memory used.")
 
     args = parser.parse_args()
