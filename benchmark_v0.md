@@ -63,7 +63,7 @@ Similarly, we can plot the "throughput v.s. latency" profile for the same GPU bu
 ### Tensor Parallel v.s. Data Parallel
 Which is a better way to scale the performance? Is it better to scale vertically using tensor parallelism, or is it better to scale horizontally with daa parallelism. The former gives you a "beefier" processor by combining the memory and tensor cores from multiple GPUs, at the cost of inter-device communication; while the later keep each GPUs independent so you have a fleet of less powerful devices. 
 
-The following figures illustrate the different characteristics of these two parallelism strategies. To do so, we doubled the number of GPUs and applied either DP to horizontally scale the system, or TF to vertically scale the system. We also double the number of prompts used in the system so to make sure data parallelism could double its throughput while keeping the latency unaffected. Our benchmark showed tensor parallelism runs at lower latencies, while data parallelism runs at higher throughputs. 
+The following figures illustrate the different characteristics of these two parallelism strategies. To do so, we doubled the number of GPUs and applied either DP to horizontally scale the system, or TP to vertically scale the system. We also double the number of prompts used in the system so to make sure data parallelism could double its throughput while keeping the latency unaffected. Our benchmark showed tensor parallelism runs at lower latencies, while data parallelism runs at higher throughputs. 
 
 <p align="center">
   <img src="./renders/scale_Mistral-7B-Instruct-v0.3_len2000.png" alt="scale_Mistral-7B-Instruct-v0.3_len2000" width="30%" />
@@ -71,7 +71,7 @@ The following figures illustrate the different characteristics of these two para
   <img src="./renders/scale_Mixtral-8x22B-Instruct-v0.1_len2000.png" alt="scale_Mixtral-8x22B-Instruct-v0.1_len2000" width="30%" />
 </p>
 
-In general, scaling inference using data parallelism is often more effective than tensor parallelism, if the model fits within the system. The table below provides an example, showing how `throughput/latency` scales poorly with tensor parallelism: with `--num-prompts` fixed at 320 to ensure a large batch size and fully utilize the compute, the throughputs still scale far from linearly, unlike the expected behavior with data parallelism.
+In general, scaling inference using data parallelism is often more effective than tensor parallelism, if the model fits within the system. The table below provides some data, showing how `throughput/latency` scales poorly for "overly" tensor parallelized systems: with `--num-prompts` fixed at 320 to ensure a large batch size and fully utilize the compute, the throughputs of tensor parallelism still scale far from linearly, unlike the expected behavior with data parallelism.
 
 |                  | Meta-Llama-3.1-8B-FP8 | Meta-Llama-3.1-70B-Instruct-FP8 | Hermes-3-Llama-3.1-405B-FP8 | Mistral-7B-Instruct-v0.3 | Mixtral-8x7B-Instruct-v0.1 | Mixtral-8x22B-Instruct-v0.1 | Mistral-Nemo-Instruct-2407 | Mistral-Large-Instruct-2407 |
 |------------------|----------------------:|--------------------------------:|----------------------------:|-------------------------:|---------------------------:|----------------------------:|----------------------------:|-----------------------------:|
