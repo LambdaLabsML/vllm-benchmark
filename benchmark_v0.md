@@ -71,7 +71,7 @@ The following figures illustrate the different characteristics of these two para
   <img src="./renders/scale_Mixtral-8x22B-Instruct-v0.1_len2000.png" alt="scale_Mixtral-8x22B-Instruct-v0.1_len2000" width="30%" />
 </p>
 
-In general, scaling out the performance using data parallelism can be more rewarding, if a model can be fit into an existing system. The following table shows the `throughput/latency` across different `GPU/model` combinations, with `--num-prompts` set to 320. The reason for not increasing `--num-prompts` any further is due to the system has already saturated its compute, and no more throughput or latency improvement can be achived with larger batch size.
+In general, scaling inference using data parallelism is often more effective than tensor parallelism, if the model fits within the system. The table below provides an example, showing how `throughput/latency` scales poorly with tensor parallelism: with `--num-prompts` fixed at 320 to ensure a large batch size and fully utilize the compute, the throughputs still scale far from linearly, unlike the expected behavior with data parallelism.
 
 |                  | Meta-Llama-3.1-8B-FP8 | Meta-Llama-3.1-70B-Instruct-FP8 | Hermes-3-Llama-3.1-405B-FP8 | Mistral-7B-Instruct-v0.3 | Mixtral-8x7B-Instruct-v0.1 | Mixtral-8x22B-Instruct-v0.1 | Mistral-Nemo-Instruct-2407 | Mistral-Large-Instruct-2407 |
 |------------------|----------------------:|--------------------------------:|----------------------------:|-------------------------:|---------------------------:|----------------------------:|----------------------------:|-----------------------------:|
