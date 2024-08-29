@@ -61,7 +61,7 @@ Similarly, we can plot the "throughput v.s. latency" profile for the same GPU bu
 
 
 ### Tensor Parallel v.s. Data Parallel
-Which is a better way to scale the performance? Is it better to scale vertically using tensor parallelism, or is it better to scale horizontally with daa parallelism. The former gives you a "beefier" processor by combining the memory and tensor cores from multiple GPUs, at the cost of inter-device communication; while the later keep each GPUs independent so you have a fleet of less powerful devices. 
+Which is a better way to scale the performance? Is it better to scale vertically using tensor parallelism, or is it better to scale horizontally with data parallelism? The former gives you a "beefier" processor by combining the memory and tensor cores from multiple GPUs at the cost of inter-device communication, while the latter keeps each GPU independent so you have a fleet of less powerful devices. 
 
 The following figures illustrate the different characteristics of these two parallelism strategies. To do so, we doubled the number of GPUs and applied either DP to horizontally scale the system, or TP to vertically scale the system. We also double the number of prompts used in the system so to make sure data parallelism could double its throughput while keeping the latency unaffected. Our benchmark showed tensor parallelism runs at lower latencies, while data parallelism runs at higher throughputs. 
 
