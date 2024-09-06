@@ -6,7 +6,7 @@ run_benchmark() {
   GPU_DEVICES=$2
   SHM_SIZE=$3
 
-  for NUM_PROMPTS in 10 20 40 80 160 320
+  for NUM_PROMPTS in 10 20 40 80 160 320 640 1280
   do
     docker run --gpus $GPU_DEVICES \
       --rm \
