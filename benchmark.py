@@ -22,7 +22,7 @@ def read_output(pipe):
     finally:
         pipe.close()
 
-def run_benchmark(model, max_model_len, num_gpus, gpu_memory_utilization, output_json, vllm_start_timeout, dataset_name, dataset_path, num_prompts, max_num_seqs):
+def run_benchmark(model, max_model_len, num_gpus, gpu_memory_utilization, output_json, vllm_start_timeout, dataset_name, dataset_path, num_prompts, max_num_seqs, num_scheduler_steps):
 
     # Start the server and capture its output for error detection
     server_cmd = [
@@ -31,7 +31,8 @@ def run_benchmark(model, max_model_len, num_gpus, gpu_memory_utilization, output
         "--model", model,
         "--max-model-len", str(max_model_len),
         "--gpu-memory-utilization", str(gpu_memory_utilization),
-        "--max-num-seqs", str(max_num_seqs)
+        "--max-num-seqs", str(max_num_seqs),
+        "--num-scheduler-steps", str(num_scheduler_steps)
     ]
     
     if num_gpus > 1:
@@ -119,6 +120,7 @@ def main(args):
     vllm_start_timeout=args.vllm_start_timeout
     gpu_memory_utilization=args.gpu_memory_utilization
     max_num_seqs=args.max_num_seqs
+    num_scheduler_steps=args.num_scheduler_steps
 
     print(f"Tasks file: {tasks}")
     print(f"Number of GPUs: {num_gpus}")
@@ -129,6 +131,7 @@ def main(args):
     print(f"VLLM start timeout: {vllm_start_timeout} seconds")
     print(f"Fraction of GPU: {gpu_memory_utilization}")
     print(f"Max Num of Sequences: {max_num_seqs}")
+    print(f"Num of Scheduler Steps: {num_scheduler_steps}")
 
     # Load the YAML file
     with open(tasks, 'r') as file:
@@ -168,7 +171,7 @@ def main(args):
                 last_model = task["model"]
                 flag_failed = False
         try:
-            exit_code = run_benchmark(model, max_model_len, num_gpus, gpu_memory_utilization, output_json, vllm_start_timeout, dataset_name, dataset_path, num_prompts, max_num_seqs)
+            exit_code = run_benchmark(model, max_model_len, num_gpus, gpu_memory_utilization, output_json, vllm_start_timeout, dataset_name, dataset_path, num_prompts, max_num_seqs, num_scheduler_steps)
             print(f"Benchmark test completed with exit code: {exit_code}\n")
             if exit_code != 0:
                 flag_failed = True
@@ -195,7 +198,7 @@ if __name__ == "__main__":
     parser.add_argument("--vllm_start_timeout", type=int, default=600, help="Timeout in seconds for starting the VLLM server.")
     parser.add_argument("--max-num-seqs", type=int, default=1024, help="Maximum number of sequences per iteration. Practically the max possible batch size.")
     parser.add_argument("--gpu-memory-utilization", type=float, default=0.95, help="Fraction of GPU memory used.")
-
+    parser.add_argument("--num-scheduler-steps", type=int, default=10, help="Magical setting for reproducing vllm 0.6.0 results.")
     args = parser.parse_args()
 
     # Pass parsed arguments to the main function

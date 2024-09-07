@@ -70,6 +70,10 @@ class BenchmarkMetrics:
     median_itl_ms: float
     std_itl_ms: float
     p99_itl_ms: float
+    mean_latency_ms: float
+    median_latency_ms: float
+    std_latency_ms: float
+    p99_latency_ms: float
 
 
 def sample_sharegpt_requests(
@@ -287,6 +291,14 @@ def calculate_metrics(
         median_itl_ms=np.median(itls or 0) * 1000,
         std_itl_ms=np.std(itls or 0) * 1000,
         p99_itl_ms=np.percentile(itls or 0, 99) * 1000,
+        mean_latency_ms=np.mean([output.latency
+                                 for output in outputs] or 0) * 1000,
+        median_latency_ms=np.median([output.latency
+                                     for output in outputs] or 0) * 1000,
+        std_latency_ms=np.std([output.latency
+                               for output in outputs] or 0) * 1000,
+        p99_latency_ms=np.percentile([output.latency
+                                      for output in outputs] or 0, 99) * 1000,
     )
 
     return metrics, actual_output_lens
@@ -302,6 +314,7 @@ async def benchmark(
     use_beam_search: bool,
     request_rate: float,
     disable_tqdm: bool,
+    ignore_eos: bool,
 ):
     if backend in ASYNC_REQUEST_FUNCS:
         request_func = ASYNC_REQUEST_FUNCS[backend]
@@ -318,6 +331,7 @@ async def benchmark(
         output_len=test_output_len,
         best_of=best_of,
         use_beam_search=use_beam_search,
+        ignore_eos=ignore_eos,
     )
     test_output = await request_func(request_func_input=test_input)
     if not test_output.success:
@@ -412,6 +426,10 @@ async def benchmark(
         "median_itl_ms": metrics.median_itl_ms,
         "std_itl_ms": metrics.std_itl_ms,
         "p99_itl_ms": metrics.p99_itl_ms,
+        "mean_latency_ms": metrics.mean_latency_ms,
+        "median_latency_ms": metrics.median_latency_ms,
+        "std_latency_ms": metrics.std_latency_ms,
+        "p99_latency_ms": metrics.p99_latency_ms,
         "input_lens": [output.prompt_len for output in outputs],
         "output_lens": actual_output_lens,
         "ttfts": [output.ttft for output in outputs],
@@ -513,6 +531,7 @@ def main(args: argparse.Namespace):
             use_beam_search=args.use_beam_search,
             request_rate=args.request_rate,
             disable_tqdm=args.disable_tqdm,
+            ignore_eos=args.ignore_eos,
         ))
 
     # Save config and results to json
@@ -541,8 +560,8 @@ def main(args: argparse.Namespace):
                     )
 
         # Traffic
-        result_json["request_rate"] = (
-            args.request_rate if args.request_rate < float("inf") else "inf")
+        result_json["request_rate"] = (args.request_rate if args.request_rate
+                                       < float("inf") else "inf")
 
         # Merge with benchmark result
         result_json = {**result_json, **benchmark_result}
@@ -722,6 +741,11 @@ if __name__ == "__main__":
         "{backend}-{args.request_rate}qps-{base_model_id}-{current_dt}.json"
         " format.",
     )
+    parser.add_argument(
+        "--ignore-eos",
+        action="store_true",
+        help="Set ignore_eos flag when sending the benchmark request."
+        "Warning: ignore_eos is not supported in deepspeed_mii and tgi.")
 
     args = parser.parse_args()
     main(args)
