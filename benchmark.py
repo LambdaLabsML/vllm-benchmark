@@ -32,7 +32,8 @@ def run_benchmark(model, max_model_len, num_gpus, gpu_memory_utilization, output
         "--max-model-len", str(max_model_len),
         "--gpu-memory-utilization", str(gpu_memory_utilization),
         "--max-num-seqs", str(max_num_seqs),
-        "--num-scheduler-steps", str(num_scheduler_steps)
+        "--num-scheduler-steps", str(num_scheduler_steps),
+        "--disable-log-requests"
     ]
     
     if num_gpus > 1:
