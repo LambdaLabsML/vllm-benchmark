@@ -98,5 +98,44 @@ Although the `max_model_len` decides the max context length a system can support
 ### H100 v.s. A100
 The performance gap between NVIDIA H100 80GB SXM and A100 80GB SXM varies from model to model. Overall H100 can deliver around 2x higher throughput and 2x lower latency. As an example, for serving `Mistral-7B-Instruct-v0.3`, `1xH100` delivers 2.06x higher througput and 2.07x lower latency. For serving `Hermes-3-Llama-3.1-405B-FP8`, `8xH100` delivers 2.65x higher throughput and 2.45x lower latency. 
 
+
+### vLLM v0.5.4 v.s. v0.6.0
+This benchmark was conducted with vLLM `v0.5.4`. We observed major improvements with the latest version, `v0.6.0`, particularly in reducing CPU overhead. Our tests confirm that `v0.6.0` more than doubles output throughput and reduces Median Time Per Output Token (TPOT) for Llama 3.1 8B and 70B models. This is largely thanks to the multi-step scheduling feature (`num-scheduler-steps=10`). The performance gain is smaller for the Llama 405B model, likely due to its heavier computation where CPU bottlenecks are less significant.
+
+A key improvement in `v0.6.0` is higher GPU utilization. For example, in the Llama 3.1 8B benchmark, GPU power draw increased from `~60%` in `v0.5.4` to `~95%`.
+
+On the "flip" side, we notice there is a higher median inter-token latency (ITL) with `v0.6.0`,  However this is understandable since `v0.6.0` only streams tokens when a full batch of token generation steps are completed, so ITL will be effectively inflated by the `num-scheduler-steps`. While this wcan potentially create "chunkiness" during the streaming, it only affects user experience when tokens are generated at the human read speed. Since LLM services usually aim at user experience that steams faster than that, so such "chunkiness" is unlikely to matter in practice.
+
+
+One "tradeoff" is the higher median inter-token latency (ITL) in `v0.6.0`, as [reported by other community contributors](https://github.com/sgl-project/sglang/tree/main/benchmark/benchmark_vllm_060). Since tokens are streamed only after a batch of generation steps is complete, ITL will be inflated by the `num-scheduler-steps`. This can cause some "chunkiness" in streaming, but it’s unlikely to affect user experience since most LLM services stream faster than the human reading speed.
+
+The tables below compare the performance of `v0.5.4`, `v0.6.0+step1`, and `v0.6.0+step10` across three different Llama 3.1 models. The impact of `num-scheduler-steps` is clear, showing significant improvements in output throughput and Median TPOT. We set requests per second (`rps`) to `inf` and used 5000 requests to simulate high inbound traffic. For all tests, we set `max-num-seq=256` and `max-seq-len=2048`. As of this writing, the vLLM team is working on [PR#8001](https://github.com/vllm-project/vllm/pull/8001) to support `num-scheduler-steps` with chunked prefill, allowing the latest optimizations to run at full context length for large models.
+
+`Llama 3.1 8B`: `tp=1`, `rps=inf`, `num-prompt=5000`, `max-num-seq=256`, `max-seq-len=2048`
+| vLLM version | Chuncked Prefill | Scheduler Steps | Output Throughput | Median TPOT | Median ITL |
+|--------------|------------------|-----------------|-------------------|-------------|------------|
+| v0.5.4       | True             | N/A             | 3032.04           | 64.06       | 48.28      | 
+| v0.6.0       | False            | 1               | 3958.40           | 196.24      | 179.17     | 
+| v0.6.0       | False            | 10              | 8088.35           | 25.57       | 243.76     | 
+
+
+`Llama 3.1 70B`: `tp=4`, `rps=inf`, `num-prompt=5000`, `max-num-seq=256`, `max-seq-len=2048`
+| vLLM version | Chuncked Prefill | Scheduler Steps | Output Throughput | Median TPOT | Median ITL |
+|--------------|------------------|-----------------|-------------------|-------------|------------|
+| v0.5.4       | True             | N/A             | 1491.93           | 125.78      | 74.22      | 
+| v0.6.0       | False            | 1               | 2291.0            | 102.99      | 63.54      | 
+| v0.6.0       | False            | 10              | 3542.88           | 61.10       | 574.07     | 
+
+
+`Llama 3.1 405B FP8`: `tp=8`, `rps=inf`, `num-prompt=1280`, `max-num-seq=256`, `max-seq-len=2048`
+
+| vLLM version | Chuncked Prefill | Scheduler Steps | Output Throughput | Median TPOT | Median ITL |
+|--------------|------------------|-----------------|-------------------|-------------|------------|
+| v0.5.4       | True             | N/A             | 1220.26           | 182.72      | 144.06     | 
+| v0.6.0       | False            | 1               | 1331.25           | 163.52      | 114.42     | 
+| v0.6.0       | False            | 10              | 1714.07           | 112.20      | 1036.33    | 
+
+
 ## Conclusion
 The benchmarks demonstrate that NVIDIA H100 GPUs significantly outperform A100 GPUs, especially when handling larger models like the Llama and Mistral families. By leveraging tensor parallelism and optimizing batch sizes, the vLLM framework effectively balances throughput and latency, making it a powerful tool for large-scale LLM inference. For those aiming to optimize performance in similar contexts, utilizing H100 GPUs and adjusting parallelism settings may be particularly effective.
+
