@@ -3,10 +3,10 @@ import csv
 
 path_results = "./results"
 list_gpus = [
-    "1xA100-80GB-SXM",
-    "2xA100-80GB-SXM",
-    "4xA100-80GB-SXM",
-    "8xA100-80GB-SXM",
+    # "1xA100-80GB-SXM",
+    # "2xA100-80GB-SXM",
+    # "4xA100-80GB-SXM",
+    # "8xA100-80GB-SXM",
     "1xH100-80GB-SXM",
     "2xH100-80GB-SXM",
     "4xH100-80GB-SXM",
@@ -15,12 +15,14 @@ list_gpus = [
 
 num_prompt = 10
 
-list_max_model_len = [2000, 4000, 8000, 16000, 32000, 64000, 128000]
+list_max_model_len = ["2048", "4096", "8192", "16384", "32768", "65536", "131072"]
 
 list_models = [
     "neuralmagic/Meta-Llama-3.1-8B-FP8",
     "neuralmagic/Meta-Llama-3.1-70B-Instruct-FP8",
     "NousResearch/Hermes-3-Llama-3.1-405B-FP8",
+    "meta-llama/Meta-Llama-3-8B-Instruct",
+    "meta-llama/Meta-Llama-3-70B-Instruct",
     "mistralai/Mistral-7B-Instruct-v0.3",
     "mistralai/Mixtral-8x7B-Instruct-v0.1",
     "mistralai/Mixtral-8x22B-Instruct-v0.1",
@@ -55,7 +57,7 @@ for gpu in list_gpus:
             model_name = model.split("/")[1]
             num_gpu = gpu.split("x")[0]
             file_path = f"{path_results}/prompt_{num_prompt}/{gpu}/{model_name}_tp{num_gpu}_len{max_model_len}.json"
-            
+            print(file_path)
             if not check_for_reason_key(file_path):
                 results[gpu][model] = max_model_len
                 break

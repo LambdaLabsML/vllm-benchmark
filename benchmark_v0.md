@@ -4,6 +4,7 @@
 We conduct LLM inference benchmarks on various NVIDIA GPUs (A100 and H100). Our benchmarks used vLLM to evaluate Llama and Mistral models ranging from 7B to 405B in size. The key insights are:
 * Results highlight trade-offs between throughput and latency, with increased GPU parallelism improving overall performance but varying depending on model size and configuration.
 * The NVIDIA H100 shows significant performance improvements over the A100, delivering roughly 2x higher throughput and lower latency across different models and GPU configurations.
+* vLLM's latest `v0.6.0` release more than doubles output throughput and reduces Median Time Per Output Token (TPOT).
 
 ## Variables
 

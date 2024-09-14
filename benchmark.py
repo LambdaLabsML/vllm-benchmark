@@ -33,7 +33,8 @@ def run_benchmark(model, max_model_len, num_gpus, gpu_memory_utilization, output
         "--gpu-memory-utilization", str(gpu_memory_utilization),
         "--max-num-seqs", str(max_num_seqs),
         "--num-scheduler-steps", str(num_scheduler_steps),
-        "--disable-log-requests"
+        "--enable-chunked-prefill", "False",
+        "--disable-log-requests",
     ]
     
     if num_gpus > 1:
@@ -93,7 +94,8 @@ def run_benchmark(model, max_model_len, num_gpus, gpu_memory_utilization, output
         "--endpoint", "/v1/completions",
         "--tokenizer", model,
         "--save-result",
-        "--result-filename", output_json
+        "--result-filename", output_json,
+        "--request-rate", "inf"
     ])
     bench_serving_exit_code = benchmark_process.returncode
 
@@ -122,6 +124,7 @@ def main(args):
     gpu_memory_utilization=args.gpu_memory_utilization
     max_num_seqs=args.max_num_seqs
     num_scheduler_steps=args.num_scheduler_steps
+    result_path=args.result_path
 
     print(f"Tasks file: {tasks}")
     print(f"Number of GPUs: {num_gpus}")
@@ -133,6 +136,7 @@ def main(args):
     print(f"Fraction of GPU: {gpu_memory_utilization}")
     print(f"Max Num of Sequences: {max_num_seqs}")
     print(f"Num of Scheduler Steps: {num_scheduler_steps}")
+    print(f"Path to save results: {result_path}")
 
     # Load the YAML file
     with open(tasks, 'r') as file:
@@ -141,7 +145,7 @@ def main(args):
     # Extract the list of tasks
     tasks = data.get('tasks', [])
 
-    output_dir = f"results/prompt_{num_prompts}/{num_gpus}x{name_gpu}"
+    output_dir = f"{result_path}/prompt_{num_prompts}/{num_gpus}x{name_gpu}"
     os.makedirs(output_dir, exist_ok=True)
 
     flag_failed = False
@@ -151,6 +155,7 @@ def main(args):
         print(f"Running benchmark for model: {task}")
         model = task["model"]
         max_model_len = task["max_model_len"]
+
         output_json = output_dir + "/" + model.split("/")[1] + "_tp" + str(num_gpus) + "_len" + str(max_model_len) + ".json"
         
         if os.path.exists(output_json):
@@ -196,10 +201,11 @@ if __name__ == "__main__":
     parser.add_argument("--num_prompts", type=int, default=40, help="Number of prompts to use for benchmarking.")
     parser.add_argument("--dataset_name", type=str, default="sharegpt", help="Name of the dataset to use.")
     parser.add_argument("--dataset_path", type=str, default="./ShareGPT_V3_unfiltered_cleaned_split.json", help="Path to the dataset JSON file.")
-    parser.add_argument("--vllm_start_timeout", type=int, default=600, help="Timeout in seconds for starting the VLLM server.")
-    parser.add_argument("--max-num-seqs", type=int, default=1024, help="Maximum number of sequences per iteration. Practically the max possible batch size.")
+    parser.add_argument("--vllm_start_timeout", type=int, default=1000, help="Timeout in seconds for starting the VLLM server.")
+    parser.add_argument("--max-num-seqs", type=int, default=512, help="Maximum number of sequences per iteration. Practically the max possible batch size.")
     parser.add_argument("--gpu-memory-utilization", type=float, default=0.95, help="Fraction of GPU memory used.")
     parser.add_argument("--num-scheduler-steps", type=int, default=10, help="Magical setting for reproducing vllm 0.6.0 results.")
+    parser.add_argument("--result_path", type=str, default="results", help="Path to save results")
     args = parser.parse_args()
 
     # Pass parsed arguments to the main function

@@ -37,6 +37,7 @@ docker run --gpus all \
 export HF_TOKEN=<your-hf-token>
 export GPU_NAME=H100-80GB-SXM
 export vLLM_BUILD="vllm/vllm-openai:v0.6.0"
+export vLLM_BUILD="vllm/vllm-openai:v0.5.4"
 
-./benchmark_1x2x4x8x.sh $vLLM_BUILD
+./benchmark_1x2x4x8x.sh
 ```

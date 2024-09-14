@@ -15,12 +15,14 @@ list_gpus = [
 
 num_prompt = 320
 
-max_model_len = 2000
+max_model_len = "2048"
 
 list_models = [
     "neuralmagic/Meta-Llama-3.1-8B-FP8",
     "neuralmagic/Meta-Llama-3.1-70B-Instruct-FP8",
     "NousResearch/Hermes-3-Llama-3.1-405B-FP8",
+    "meta-llama/Meta-Llama-3-8B-Instruct",
+    "meta-llama/Meta-Llama-3-70B-Instruct",
     "mistralai/Mistral-7B-Instruct-v0.3",
     "mistralai/Mixtral-8x7B-Instruct-v0.1",
     "mistralai/Mixtral-8x22B-Instruct-v0.1",
