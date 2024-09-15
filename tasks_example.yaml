@@ -1,9 +1,0 @@
-tasks:
-  - model: "meta-llama/Meta-Llama-3-8B-Instruct"
-    max_model_len: "2048"
-  - model: "meta-llama/Meta-Llama-3-8B-Instruct"
-    max_model_len: "4096"
-  - model: "meta-llama/Meta-Llama-3-70B-Instruct"
-    max_model_len: "2048"
-  - model: "meta-llama/Meta-Llama-3-70B-Instruct"
-    max_model_len: "4096"

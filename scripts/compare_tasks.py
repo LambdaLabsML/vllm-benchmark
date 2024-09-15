@@ -39,88 +39,70 @@ def plot_benchmark_data(num_prompts, gpu_name, base_task_names, result_path, ren
     
     # model_name = base_task_names[0].split("_tp")[0]
     plt.xlabel('Median ITL (ms)')
-    plt.ylabel('Output Throughput')
+    plt.ylabel('Output Throughput (tokens/s)')
     # plt.title(f'Benchmark Results for {gpu_name}_{model_name}')
     plt.title(f'Benchmark Results for {gpu_name}')
+    plt.xlim([0, 120])  # Set the range for the x-axis
+    plt.ylim([0, 5000])  # Set the range for the y-axis
     plt.grid(True)
-    plt.legend(title="Task Names")
+    plt.legend(title="Task Names", loc='upper right')
     
     # Save the figure
     # plt.savefig(f'{render_path}/{gpu_name}_{model_name}.png')
     plt.savefig(f'{render_path}/{gpu_name}.png')
 
 # Example usage
-num_prompts = [10, 20, 40, 80, 160, 320]  # Replace with your actual values
-# gpu_name = "1xA100-80GB-SXM"  # Replace with your actual GPU name
-# base_task_names = [
-#     "Meta-Llama-3.1-8B-FP8_tp1_len2000",
-#     "Meta-Llama-3.1-70B-Instruct-FP8_tp1_len2000",
-#     "Mistral-7B-Instruct-v0.3_tp1_len2000",
-#     "Mixtral-8x7B-Instruct-v0.1_tp1_len2000",
-#     "Mixtral-8x22B-Instruct-v0.1_tp1_len2000",
-#     "Mistral-Nemo-Instruct-2407_tp1_len2000",
-#     "Mistral-Large-Instruct-2407_tp1_len2000",
-#     "Hermes-3-Llama-3.1-405B-FP8_tp1_len2000",
-# ]  # Replace with your actual task names
-
-gpu_name = "2xA100-80GB-SXM"  # Replace with your actual GPU name
+num_prompts = [10, 20, 40, 80, 160, 320, 640, 1280]  # Replace with your actual values
+gpu_name = "1xH100-80GB-SXM"  # Replace with your actual GPU name
 base_task_names = [
-    "Meta-Llama-3.1-8B-FP8_tp2_len2000",
-    "Meta-Llama-3.1-70B-Instruct-FP8_tp2_len2000",
-    "Mistral-7B-Instruct-v0.3_tp2_len2000",
-    "Mixtral-8x7B-Instruct-v0.1_tp2_len2000",
-    "Mixtral-8x22B-Instruct-v0.1_tp2_len2000",
-    "Mistral-Nemo-Instruct-2407_tp2_len2000",
-    "Mistral-Large-Instruct-2407_tp2_len2000",
-    "Hermes-3-Llama-3.1-405B-FP8_tp2_len2000",
+    "Meta-Llama-3.1-8B-FP8_tp1_len2000",
+    "Meta-Llama-3.1-70B-Instruct-FP8_tp1_len2000",
+    "Mistral-7B-Instruct-v0.3_tp1_len2000",
+    "Mixtral-8x7B-Instruct-v0.1_tp1_len2000",
+    "Mixtral-8x22B-Instruct-v0.1_tp1_len2000",
+    "Mistral-Nemo-Instruct-2407_tp1_len2000",
+    "Mistral-Large-Instruct-2407_tp1_len2000",
+    "Hermes-3-Llama-3.1-405B-FP8_tp1_len2000",
 ]  # Replace with your actual task names
 
-
-# gpu_name = "1xA100-80GB-SXM"  # Replace with your actual GPU name
-# base_task_names = [
-#     "Meta-Llama-3.1-8B-FP8_tp1_len2000",
-#     "Meta-Llama-3.1-8B-FP8_tp1_len4000",
-#     "Meta-Llama-3.1-8B-FP8_tp1_len8000",
-#     "Meta-Llama-3.1-8B-FP8_tp1_len16000",
-#     "Meta-Llama-3.1-8B-FP8_tp1_len32000",
-#     "Meta-Llama-3.1-8B-FP8_tp1_len64000",
-#     "Meta-Llama-3.1-8B-FP8_tp1_len128000",
-# ]  # Replace with your actual task names
-
-# gpu_name = "1xA100-80GB-SXM"  # Replace with your actual GPU name
-# base_task_names = [
-#     "Meta-Llama-3.1-70B-Instruct-FP8_tp1_len2000",
-#     "Meta-Llama-3.1-70B-Instruct-FP8_tp1_len4000",
-#     "Meta-Llama-3.1-70B-Instruct-FP8_tp1_len8000",
-#     "Meta-Llama-3.1-70B-Instruct-FP8_tp1_len16000",
-#     "Meta-Llama-3.1-70B-Instruct-FP8_tp1_len32000",
-#     "Meta-Llama-3.1-70B-Instruct-FP8_tp1_len64000",
-#     "Meta-Llama-3.1-70B-Instruct-FP8_tp1_len128000",
-# ]  # Replace with your actual task names
-
-# gpu_name = "2xA100-80GB-SXM"  # Replace with your actual GPU name
+# gpu_name = "2xH100-80GB-SXM"  # Replace with your actual GPU name
 # base_task_names = [
 #     "Meta-Llama-3.1-8B-FP8_tp2_len2000",
-#     "Meta-Llama-3.1-8B-FP8_tp2_len4000",
-#     "Meta-Llama-3.1-8B-FP8_tp2_len8000",
-#     "Meta-Llama-3.1-8B-FP8_tp2_len16000",
-#     "Meta-Llama-3.1-8B-FP8_tp2_len32000",
-#     "Meta-Llama-3.1-8B-FP8_tp2_len64000",
-#     "Meta-Llama-3.1-8B-FP8_tp2_len128000",
-# ]  # Replace with your actual task names
-
-# gpu_name = "2xA100-80GB-SXM"  # Replace with your actual GPU name
-# base_task_names = [
 #     "Meta-Llama-3.1-70B-Instruct-FP8_tp2_len2000",
-#     "Meta-Llama-3.1-70B-Instruct-FP8_tp2_len4000",
-#     "Meta-Llama-3.1-70B-Instruct-FP8_tp2_len8000",
-#     "Meta-Llama-3.1-70B-Instruct-FP8_tp2_len16000",
-#     "Meta-Llama-3.1-70B-Instruct-FP8_tp2_len32000",
-#     "Meta-Llama-3.1-70B-Instruct-FP8_tp2_len64000",
-#     "Meta-Llama-3.1-70B-Instruct-FP8_tp2_len128000",
+#     "Mistral-7B-Instruct-v0.3_tp2_len2000",
+#     "Mixtral-8x7B-Instruct-v0.1_tp2_len2000",
+#     "Mixtral-8x22B-Instruct-v0.1_tp2_len2000",
+#     "Mistral-Nemo-Instruct-2407_tp2_len2000",
+#     "Mistral-Large-Instruct-2407_tp2_len2000",
+#     "Hermes-3-Llama-3.1-405B-FP8_tp2_len2000",
 # ]  # Replace with your actual task names
 
-result_path = "./results"
-render_path = "./renders"
+
+# gpu_name = "4xH100-80GB-SXM"  # Replace with your actual GPU name
+# base_task_names = [
+#     "Meta-Llama-3.1-8B-FP8_tp4_len2000",
+#     "Meta-Llama-3.1-70B-Instruct-FP8_tp4_len2000",
+#     "Mistral-7B-Instruct-v0.3_tp4_len2000",
+#     "Mixtral-8x7B-Instruct-v0.1_tp4_len2000",
+#     "Mixtral-8x22B-Instruct-v0.1_tp4_len2000",
+#     "Mistral-Nemo-Instruct-2407_tp4_len2000",
+#     "Mistral-Large-Instruct-2407_tp4_len2000",
+#     "Hermes-3-Llama-3.1-405B-FP8_tp4_len2000",
+# ]  # Replace with your actual task names
+
+# gpu_name = "8xH100-80GB-SXM"  # Replace with your actual GPU name
+# base_task_names = [
+#     "Meta-Llama-3.1-8B-FP8_tp8_len2000",
+#     "Meta-Llama-3.1-70B-Instruct-FP8_tp8_len2000",
+#     "Mistral-7B-Instruct-v0.3_tp8_len2000",
+#     "Mixtral-8x7B-Instruct-v0.1_tp8_len2000",
+#     "Mixtral-8x22B-Instruct-v0.1_tp8_len2000",
+#     "Mistral-Nemo-Instruct-2407_tp8_len2000",
+#     "Mistral-Large-Instruct-2407_tp8_len2000",
+#     "Hermes-3-Llama-3.1-405B-FP8_tp8_len2000",
+# ]  # Replace with your actual task names
+
+result_path = "./results_v0"
+render_path = "./renders_v0"
 
 plot_benchmark_data(num_prompts, gpu_name, base_task_names, result_path, render_path)

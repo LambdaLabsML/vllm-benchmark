@@ -2,7 +2,7 @@
 
 HF_TOKEN=${HF_TOKEN:-""}  
 vLLM_BUILD=${vLLM_BUILD:-"v0.5.4"}
-TASKS=${TASKS:-"tasks_example.yaml"} 
+TASKS=${TASKS:-"./tasks/tasks_example.yaml"} 
 GPU_NAME=${GPU_NAME:-"H100-80GB-SXM"}
 GPU_DEVICES=${GPU_DEVICES:-"device=0"}
 NUM_GPU=${NUM_GPU:-1}

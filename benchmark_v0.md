@@ -46,18 +46,18 @@ One very useful way to understand the performance is through the lens of the "th
 Each of the following graphs shows the "throughput v.s. latency" profile for a specific model across different GPUs. The stronger performance profiles are closer to the top left corner (lower latency, higher throughput). Despite both NVIDIA A100 and H100 have the same amount of GPU ram (`80GB`), it is clear that the faster GPU (NVIDIA H100) and more GPUs (enables tensor parallelization) give stronger performance. 
 
 <p align="center">
-  <img src="./renders/Mistral-7B-Instruct-v0.3_len2000.png" alt="Mistral-7B-Instruct-v0.3" width="30%" />
-  <img src="./renders/Mixtral-8x7B-Instruct-v0.1_len2000.png" alt="Mixtral-8x7B-Instruct-v0.1" width="30%" />
-  <img src="./renders/Mixtral-8x22B-Instruct-v0.1_len2000.png" alt="Mixtral-8x22B-Instruct-v0.1" width="30%" />
+  <img src="./renders_v0/Mistral-7B-Instruct-v0.3_len2000.png" alt="Mistral-7B-Instruct-v0.3" width="45%" />
+  <img src="./renders_v0/Mixtral-8x7B-Instruct-v0.1_len2000.png" alt="Mixtral-8x7B-Instruct-v0.1" width="45%" />
+  <!-- <img src="./renders_v0/Mixtral-8x22B-Instruct-v0.1_len2000.png" alt="Mixtral-8x22B-Instruct-v0.1" width="30%" /> -->
 </p>
 
 
 Similarly, we can plot the "throughput v.s. latency" profile for the same GPU but across different models. It is no surprise that given the same GPU, the profile of smaller models are closer to the top left. And in general serving larger models require more GPUs, as some of the models are missing from the 1x and 2x figures.
 
 <p align="center">
-  <img src="./renders/1xH100-80GB-SXM.png" alt="1xH100-80GB-SXM" width="30%" />
-  <img src="./renders/2xH100-80GB-SXM.png" alt="2xH100-80GB-SXM" width="30%" />
-  <img src="./renders/8xH100-80GB-SXM.png" alt="8xH100-80GB-SXM" width="30%" />
+  <img src="./renders_v0/1xH100-80GB-SXM.png" alt="1xH100-80GB-SXM" width="45%" />
+  <!-- <img src="./renders_v0/2xH100-80GB-SXM.png" alt="2xH100-80GB-SXM" width="45%" /> -->
+  <img src="./renders_v0/8xH100-80GB-SXM.png" alt="8xH100-80GB-SXM" width="45%" />
 </p>
 
 
@@ -67,9 +67,9 @@ Which is a better way to scale the performance? Is it better to scale vertically
 The following figures illustrate the different characteristics of these two parallelism strategies. To do so, we doubled the number of GPUs and applied either DP to horizontally scale the system, or TP to vertically scale the system. We also double the number of prompts used in the system so to make sure data parallelism could double its throughput while keeping the latency unaffected. Our benchmark showed tensor parallelism runs at lower latencies, while data parallelism runs at higher throughputs. 
 
 <p align="center">
-  <img src="./renders/scale_Mistral-7B-Instruct-v0.3_len2000.png" alt="scale_Mistral-7B-Instruct-v0.3_len2000" width="30%" />
-  <img src="./renders/scale_Mixtral-8x7B-Instruct-v0.1_len2000.png" alt="scale_Mixtral-8x7B-Instruct-v0.1_len2000" width="30%" />
-  <img src="./renders/scale_Mixtral-8x22B-Instruct-v0.1_len2000.png" alt="scale_Mixtral-8x22B-Instruct-v0.1_len2000" width="30%" />
+  <img src="./renders/scale_Mistral-7B-Instruct-v0.3_len2000.png" alt="scale_Mistral-7B-Instruct-v0.3_len2000" width="45%" />
+  <img src="./renders/scale_Mixtral-8x7B-Instruct-v0.1_len2000.png" alt="scale_Mixtral-8x7B-Instruct-v0.1_len2000" width="45%" />
+  <!-- <img src="./renders/scale_Mixtral-8x22B-Instruct-v0.1_len2000.png" alt="scale_Mixtral-8x22B-Instruct-v0.1_len2000" width="30%" /> -->
 </p>
 
 In general, scaling inference using data parallelism is often more effective than tensor parallelism, if the model fits within the system. The table below provides some data, showing how `throughput/latency` scales poorly for "overly" tensor parallelized systems: with `--num-prompts` fixed at 320 to ensure a large batch size and fully utilize the compute, the throughputs of tensor parallelism still scale far from linearly, unlike the expected behavior with data parallelism.
@@ -90,9 +90,9 @@ In general, scaling inference using data parallelism is often more effective tha
 Although the `max_model_len` decides the max context length a system can support a model with, it is interesting that the "throughput v.s. latency" profile doesn't vary by it. As shown in the figure below, there is little difference between the benchmark outcomes of the same system using `max_model_len` range between `2000`  to `128000`. 
 
 <p align="center">
-  <img src="./renders/1xH100-80GB-SXM_Meta-Llama-3.1-8B-FP8.png" alt="1xH100-80GB-SXM_Meta-Llama-3.1-8B-FP8" width="30%" />
-  <img src="./renders/2xH100-80GB-SXM_Meta-Llama-3.1-70B-Instruct-FP8.png" alt="2xH100-80GB-SXM_Meta-Llama-3.1-70B-Instruct-FP8" width="30%" />
-  <img src="./renders/8xH100-80GB-SXM_Hermes-3-Llama-3.1-405B-FP8.png" alt="8xH100-80GB-SXM_Hermes-3-Llama-3.1-405B-FP8" width="30%" />
+  <img src="./renders/1xH100-80GB-SXM_Meta-Llama-3.1-8B-FP8.png" alt="1xH100-80GB-SXM_Meta-Llama-3.1-8B-FP8" width="45%" />
+  <img src="./renders/2xH100-80GB-SXM_Meta-Llama-3.1-70B-Instruct-FP8.png" alt="2xH100-80GB-SXM_Meta-Llama-3.1-70B-Instruct-FP8" width="45%" />
+  <!-- <img src="./renders/8xH100-80GB-SXM_Hermes-3-Llama-3.1-405B-FP8.png" alt="8xH100-80GB-SXM_Hermes-3-Llama-3.1-405B-FP8" width="30%" /> -->
 </p>
 
 

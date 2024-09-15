@@ -15,7 +15,7 @@ wget https://huggingface.co/datasets/anon8231489123/ShareGPT_Vicuna_unfiltered/r
 ```bash
 HF_TOKEN=<your-hf-token>
 SHM_SIZE=1600g
-vLLM_BUILD="vllm/vllm-openai:v0.6.0"
+vLLM_BUILD="v0.6.0"
 
 docker run --gpus all \
     --rm \
@@ -23,7 +23,7 @@ docker run --gpus all \
     -v ~/.cache/huggingface:/root/.cache/huggingface \
     -v ./:/vllm-workspace \
     --entrypoint /bin/bash \
-    $vLLM_BUILD \
+    vllm/vllm-openai:$vLLM_BUILD \
     -c "huggingface-cli login --token $HF_TOKEN && \
     cd /vllm-workspace && \
     python3 cache_model.py"
@@ -33,13 +33,14 @@ docker run --gpus all \
 
 ```bash
 export HF_TOKEN=<your-hf-token>
-export TASKS=tasks_example.yaml
+export TASKS=./tasks/tasks_example.yaml
 
-# 1xA100-80GB-SXM + v0.5.4
-# results will be saved to ./results_v0.5.4/1xA100-80GB-SXM
+# 1xH100-80GB-SXM + v0.5.4
+# results will be saved to ./results_v0.5.4/1xH100-80GB-SXM
 export GPU_NAME=H100-80GB-SXM
 export NUM_GPU=1
 export GPU_DEVICES='"device=0"'
+export SHM_SIZE=1600g
 export vLLM_BUILD="v0.5.4"
 export NUM_SCHEDULER_STEPS=0
 ./benchmark.sh
@@ -49,6 +50,7 @@ export NUM_SCHEDULER_STEPS=0
 export GPU_NAME=H100-80GB-SXM
 export NUM_GPU=8
 export GPU_DEVICES='"device=0,1,2,3,4,5,6,7"'
+export SHM_SIZE=1600g
 export vLLM_BUILD="v0.6.0"
 export NUM_SCHEDULER_STEPS=10
 ./benchmark.sh
