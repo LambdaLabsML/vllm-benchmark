@@ -23,7 +23,6 @@ def read_output(pipe):
         pipe.close()
 
 def run_benchmark(model, max_model_len, num_gpus, gpu_memory_utilization, output_json, vllm_start_timeout, dataset_name, dataset_path, num_prompts, max_num_seqs, num_scheduler_steps):
-
     # Start the server and capture its output for error detection
     server_cmd = [
         "python3",
@@ -32,10 +31,15 @@ def run_benchmark(model, max_model_len, num_gpus, gpu_memory_utilization, output
         "--max-model-len", str(max_model_len),
         "--gpu-memory-utilization", str(gpu_memory_utilization),
         "--max-num-seqs", str(max_num_seqs),
-        "--num-scheduler-steps", str(num_scheduler_steps),
-        "--enable-chunked-prefill", "False",
         "--disable-log-requests",
     ]
+
+    if num_scheduler_steps > 0:
+        # vLLM v.0.6.0 currently doesn't support multi-step scheduling together with chuncked prefill
+        server_cmd.append("--num-scheduler-steps")
+        server_cmd.append(str(num_scheduler_steps))
+        server_cmd.append("--enable-chunked-prefill")
+        server_cmd.append("False")   
     
     if num_gpus > 1:
         server_cmd.append("--tensor-parallel-size")
@@ -145,8 +149,9 @@ def main(args):
     # Extract the list of tasks
     tasks = data.get('tasks', [])
 
-    output_dir = f"{result_path}/prompt_{num_prompts}/{num_gpus}x{name_gpu}"
-    os.makedirs(output_dir, exist_ok=True)
+    # output_dir = f"{result_path}/prompt_{num_prompts}/{num_gpus}x{name_gpu}"
+    # os.makedirs(output_dir, exist_ok=True)
+    os.makedirs(result_path, exist_ok=True)
 
     flag_failed = False
     last_model = tasks[0]["model"]
@@ -156,7 +161,14 @@ def main(args):
         model = task["model"]
         max_model_len = task["max_model_len"]
 
-        output_json = output_dir + "/" + model.split("/")[1] + "_tp" + str(num_gpus) + "_len" + str(max_model_len) + ".json"
+        # output_json = output_dir + "/" + model.split("/")[1] + "_tp" + str(num_gpus) + "_len" + str(max_model_len) + ".json"
+        output_json = result_path + "/" + model.split("/")[1] + \
+            "_tp" + str(num_gpus) + \
+            "_mml" + str(max_model_len) + \
+            "_mns" + str(max_num_seqs) + \
+            "_nss" + str(num_scheduler_steps) + \
+            "_np" + str(num_prompts) + \
+            ".json"
         
         if os.path.exists(output_json):
             print("Previous benchmark result exists. Skip ...")
@@ -202,9 +214,9 @@ if __name__ == "__main__":
     parser.add_argument("--dataset_name", type=str, default="sharegpt", help="Name of the dataset to use.")
     parser.add_argument("--dataset_path", type=str, default="./ShareGPT_V3_unfiltered_cleaned_split.json", help="Path to the dataset JSON file.")
     parser.add_argument("--vllm_start_timeout", type=int, default=1000, help="Timeout in seconds for starting the VLLM server.")
-    parser.add_argument("--max-num-seqs", type=int, default=512, help="Maximum number of sequences per iteration. Practically the max possible batch size.")
+    parser.add_argument("--max-num-seqs", type=int, default=256, help="Maximum number of sequences per iteration. Practically the max possible batch size.")
     parser.add_argument("--gpu-memory-utilization", type=float, default=0.95, help="Fraction of GPU memory used.")
-    parser.add_argument("--num-scheduler-steps", type=int, default=10, help="Magical setting for reproducing vllm 0.6.0 results.")
+    parser.add_argument("--num-scheduler-steps", type=int, default=0, help="Magical setting for reproducing vllm 0.6.0 results.")
     parser.add_argument("--result_path", type=str, default="results", help="Path to save results")
     args = parser.parse_args()
 

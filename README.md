@@ -31,13 +31,25 @@ docker run --gpus all \
 
 ## Benchmark
 
-### Run 1x, 2x, 4x, 8x On A Server
-
 ```bash
 export HF_TOKEN=<your-hf-token>
-export GPU_NAME=H100-80GB-SXM
-export vLLM_BUILD="vllm/vllm-openai:v0.6.0"
-export vLLM_BUILD="vllm/vllm-openai:v0.5.4"
+export TASKS=tasks_example.yaml
 
-./benchmark_1x2x4x8x.sh
+# 1xA100-80GB-SXM + v0.5.4
+# results will be saved to ./results_v0.5.4/1xA100-80GB-SXM
+export GPU_NAME=H100-80GB-SXM
+export NUM_GPU=1
+export GPU_DEVICES='"device=0"'
+export vLLM_BUILD="v0.5.4"
+export NUM_SCHEDULER_STEPS=0
+./benchmark.sh
+
+# 8xH100-80GB-SXM + v0.6.0
+# results will be saved to ./results_v0.6.0/8xH100-80GB-SXM
+export GPU_NAME=H100-80GB-SXM
+export NUM_GPU=8
+export GPU_DEVICES='"device=0,1,2,3,4,5,6,7"'
+export vLLM_BUILD="v0.6.0"
+export NUM_SCHEDULER_STEPS=10
+./benchmark.sh
 ```
