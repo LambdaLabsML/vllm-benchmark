@@ -1,12 +1,16 @@
 
 # LLMs inference benchmarks, using vLLM, on Lambda Cloud
 
-We conduct LLM inference benchmarks on various NVIDIA GPUs (A100 and H100). Our benchmarks used vLLM to evaluate Llama and Mistral models ranging from 7B to 405B in size. The key insights are:
-* Results highlight trade-offs between throughput and latency, with increased GPU parallelism improving overall performance but varying depending on model size and configuration.
-* The NVIDIA H100 shows significant performance improvements over the A100, delivering roughly 2x higher throughput and lower latency across different models and GPU configurations.
-* vLLM's latest `v0.6.0` release more than doubles output throughput and reduces Median Time Per Output Token (TPOT).
+[OpenAI's introduction of O1](https://openai.com/index/introducing-openai-o1-preview/), its latest large language model, underscores how performance can be drastically enhanced through [inference time scaling](https://openai.com/index/learning-to-reason-with-llms/): the longer the model "thinks" during inference, the better it performs in reasoning tasks. This shift is redefining the landscape of LLM research and fueling the growing demand for more efficient inference solutions.
 
-## Variables
+In this report, we benchmark LLM inference across NVIDIA A100 and H100 GPUs, using the popular [vLLM](https://github.com/vllm-project/vllm) framework to test models like [Llama](https://www.llama.com/) and [Mistral](https://docs.mistral.ai/getting-started/models/), ranging from 7B to 405B parameters. Key findings include:
+
+* Despite the trade-off between throughput and latency, faster GPUs and parallelism improve both.
+* Data parallelism outperforms tensor parallelism when the model fits within the system.
+* NVIDIA H100 offers ~`2x` better throughput and lower latency than A100.
+* vLLM v0.6.0 doubles output throughput and reduces Time Per Output Token (TPOT).
+
+## Benchmark Design
 
 Here is the summary of all variables in our benchmarks:
 
@@ -17,7 +21,7 @@ __GPUs__: We have benchmarked NVIDIA H100-80GB-SXM and NVIDIA A100-80GB-SXM GPUs
 __Benchmark settings__: The [default vLLM settings](https://docs.vllm.ai/en/latest/models/engine_args.html) are generally very good. However we did experimented different values for the following parameters:
 * `--max-model-len`: Defines the model context length, which impacts the memory required for KV cache. We test different values to identify the max context length a specific hardware configuration can support a specific model with.
 * `--tensor-parallel-size`: Defines how to splits a model across multiple GPUs, so to serve models that are too large to fit on a single GPU.
-* `--num-prompts`: Beside vLLM settings, The [benchmark script](https://github.com/vllm-project/vllm/blob/main/benchmarks/benchmark_serving.py) provides this argument to control the number of requests. Notice vLLM will [automatically batch](https://github.com/vllm-project/vllm/issues/1707#issuecomment-1816797973) these requests in a optimzed way, as long as they are [sent asynchronously](https://github.com/vllm-project/vllm/issues/2257#issuecomment-1869400614) (as implemented in the [benchmark script](https://github.com/vllm-project/vllm/blob/main/benchmarks/benchmark_serving.py)).
+* `--num-prompts`: Beside vLLM settings, The [benchmark script](https://github.com/vllm-project/vllm/blob/main/benchmarks/benchmark_serving.py) provides these argument to control the number of requests. Notice vLLM will [automatically batch](https://github.com/vllm-project/vllm/issues/1707#issuecomment-1816797973) these requests in a optimzed way, as long as they are [sent asynchronously](https://github.com/vllm-project/vllm/issues/2257#issuecomment-1869400614) (as implemented in the [benchmark script](https://github.com/vllm-project/vllm/blob/main/benchmarks/benchmark_serving.py)).
 
 __Metrics__: Our benchmarks monitor `Output token throughput` and `Inter-token Latency`. Both of them are important performance metrices for LLM inference. As we will show later, there is also a trade-off between them: one can increase the overall throughput by increasing the batch size, at the cost of increasing the latency. We captured such a trade off by conducting benchmarks with different values for the aforementioned `--num-prompts` parameter.
 
