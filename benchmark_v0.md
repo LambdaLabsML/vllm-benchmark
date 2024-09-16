@@ -1,11 +1,16 @@
 
 # LLMs inference benchmarks, using vLLM, on Lambda Cloud
 
-We conduct LLM inference benchmarks on various NVIDIA GPUs (A100 and H100). Our benchmarks used vLLM to evaluate Llama and Mistral models ranging from 7B to 405B in size. The key insights are:
-* Results highlight trade-offs between throughput and latency, with increased GPU parallelism improving overall performance but varying depending on model size and configuration.
-* The NVIDIA H100 shows significant performance improvements over the A100, delivering roughly 2x higher throughput and lower latency across different models and GPU configurations.
+[OpenAI's introduction of O1](https://openai.com/index/introducing-openai-o1-preview/), its latest large language model, underscores how performance can be drastically enhanced through [inference time scaling](https://openai.com/index/learning-to-reason-with-llms/): the longer the model "thinks" during inference, the better it performs in reasoning tasks. This shift is redefining the landscape of LLM research and fueling the growing demand for more efficient inference solutions.
 
-## Variables
+In this report, we benchmark LLM inference across NVIDIA A100 and H100 GPUs, using the popular [vLLM](https://github.com/vllm-project/vllm) framework to test models like [Llama](https://www.llama.com/) and [Mistral](https://docs.mistral.ai/getting-started/models/), ranging from 7B to 405B parameters. Key findings include:
+
+* Despite the trade-off between throughput and latency, faster GPUs and parallelism improve both.
+* Data parallelism outperforms tensor parallelism when the model fits within the system.
+* NVIDIA H100 offers ~`2x` better throughput and lower latency than A100.
+* vLLM v0.6.0 doubles output throughput and reduces Time Per Output Token (TPOT).
+
+## Benchmark Design
 
 Here is the summary of all variables in our benchmarks:
 
@@ -16,7 +21,7 @@ __GPUs__: We have benchmarked NVIDIA H100-80GB-SXM and NVIDIA A100-80GB-SXM GPUs
 __Benchmark settings__: The [default vLLM settings](https://docs.vllm.ai/en/latest/models/engine_args.html) are generally very good. However we did experimented different values for the following parameters:
 * `--max-model-len`: Defines the model context length, which impacts the memory required for KV cache. We test different values to identify the max context length a specific hardware configuration can support a specific model with.
 * `--tensor-parallel-size`: Defines how to splits a model across multiple GPUs, so to serve models that are too large to fit on a single GPU.
-* `--num-prompts`: Beside vLLM settings, The [benchmark script](https://github.com/vllm-project/vllm/blob/main/benchmarks/benchmark_serving.py) provides this argument to control the number of requests. Notice vLLM will [automatically batch](https://github.com/vllm-project/vllm/issues/1707#issuecomment-1816797973) these requests in a optimzed way, as long as they are [sent asynchronously](https://github.com/vllm-project/vllm/issues/2257#issuecomment-1869400614) (as implemented in the [benchmark script](https://github.com/vllm-project/vllm/blob/main/benchmarks/benchmark_serving.py)).
+* `--num-prompts`: Beside vLLM settings, The [benchmark script](https://github.com/vllm-project/vllm/blob/main/benchmarks/benchmark_serving.py) provides these argument to control the number of requests. Notice vLLM will [automatically batch](https://github.com/vllm-project/vllm/issues/1707#issuecomment-1816797973) these requests in a optimzed way, as long as they are [sent asynchronously](https://github.com/vllm-project/vllm/issues/2257#issuecomment-1869400614) (as implemented in the [benchmark script](https://github.com/vllm-project/vllm/blob/main/benchmarks/benchmark_serving.py)).
 
 __Metrics__: Our benchmarks monitor `Output token throughput` and `Inter-token Latency`. Both of them are important performance metrices for LLM inference. As we will show later, there is also a trade-off between them: one can increase the overall throughput by increasing the batch size, at the cost of increasing the latency. We captured such a trade off by conducting benchmarks with different values for the aforementioned `--num-prompts` parameter.
 
@@ -45,18 +50,18 @@ One very useful way to understand the performance is through the lens of the "th
 Each of the following graphs shows the "throughput v.s. latency" profile for a specific model across different GPUs. The stronger performance profiles are closer to the top left corner (lower latency, higher throughput). Despite both NVIDIA A100 and H100 have the same amount of GPU ram (`80GB`), it is clear that the faster GPU (NVIDIA H100) and more GPUs (enables tensor parallelization) give stronger performance. 
 
 <p align="center">
-  <img src="./renders/Mistral-7B-Instruct-v0.3_len2000.png" alt="Mistral-7B-Instruct-v0.3" width="30%" />
-  <img src="./renders/Mixtral-8x7B-Instruct-v0.1_len2000.png" alt="Mixtral-8x7B-Instruct-v0.1" width="30%" />
-  <img src="./renders/Mixtral-8x22B-Instruct-v0.1_len2000.png" alt="Mixtral-8x22B-Instruct-v0.1" width="30%" />
+  <img src="./renders_v0/Mistral-7B-Instruct-v0.3_len2000.png" alt="Mistral-7B-Instruct-v0.3" width="45%" />
+  <img src="./renders_v0/Mixtral-8x7B-Instruct-v0.1_len2000.png" alt="Mixtral-8x7B-Instruct-v0.1" width="45%" />
+  <!-- <img src="./renders_v0/Mixtral-8x22B-Instruct-v0.1_len2000.png" alt="Mixtral-8x22B-Instruct-v0.1" width="30%" /> -->
 </p>
 
 
 Similarly, we can plot the "throughput v.s. latency" profile for the same GPU but across different models. It is no surprise that given the same GPU, the profile of smaller models are closer to the top left. And in general serving larger models require more GPUs, as some of the models are missing from the 1x and 2x figures.
 
 <p align="center">
-  <img src="./renders/1xH100-80GB-SXM.png" alt="1xH100-80GB-SXM" width="30%" />
-  <img src="./renders/2xH100-80GB-SXM.png" alt="2xH100-80GB-SXM" width="30%" />
-  <img src="./renders/8xH100-80GB-SXM.png" alt="8xH100-80GB-SXM" width="30%" />
+  <img src="./renders_v0/1xH100-80GB-SXM.png" alt="1xH100-80GB-SXM" width="45%" />
+  <!-- <img src="./renders_v0/2xH100-80GB-SXM.png" alt="2xH100-80GB-SXM" width="45%" /> -->
+  <img src="./renders_v0/8xH100-80GB-SXM.png" alt="8xH100-80GB-SXM" width="45%" />
 </p>
 
 
@@ -66,9 +71,9 @@ Which is a better way to scale the performance? Is it better to scale vertically
 The following figures illustrate the different characteristics of these two parallelism strategies. To do so, we doubled the number of GPUs and applied either DP to horizontally scale the system, or TP to vertically scale the system. We also double the number of prompts used in the system so to make sure data parallelism could double its throughput while keeping the latency unaffected. Our benchmark showed tensor parallelism runs at lower latencies, while data parallelism runs at higher throughputs. 
 
 <p align="center">
-  <img src="./renders/scale_Mistral-7B-Instruct-v0.3_len2000.png" alt="scale_Mistral-7B-Instruct-v0.3_len2000" width="30%" />
-  <img src="./renders/scale_Mixtral-8x7B-Instruct-v0.1_len2000.png" alt="scale_Mixtral-8x7B-Instruct-v0.1_len2000" width="30%" />
-  <img src="./renders/scale_Mixtral-8x22B-Instruct-v0.1_len2000.png" alt="scale_Mixtral-8x22B-Instruct-v0.1_len2000" width="30%" />
+  <img src="./renders/scale_Mistral-7B-Instruct-v0.3_len2000.png" alt="scale_Mistral-7B-Instruct-v0.3_len2000" width="45%" />
+  <img src="./renders/scale_Mixtral-8x7B-Instruct-v0.1_len2000.png" alt="scale_Mixtral-8x7B-Instruct-v0.1_len2000" width="45%" />
+  <!-- <img src="./renders/scale_Mixtral-8x22B-Instruct-v0.1_len2000.png" alt="scale_Mixtral-8x22B-Instruct-v0.1_len2000" width="30%" /> -->
 </p>
 
 In general, scaling inference using data parallelism is often more effective than tensor parallelism, if the model fits within the system. The table below provides some data, showing how `throughput/latency` scales poorly for "overly" tensor parallelized systems: with `--num-prompts` fixed at 320 to ensure a large batch size and fully utilize the compute, the throughputs of tensor parallelism still scale far from linearly, unlike the expected behavior with data parallelism.
@@ -89,14 +94,49 @@ In general, scaling inference using data parallelism is often more effective tha
 Although the `max_model_len` decides the max context length a system can support a model with, it is interesting that the "throughput v.s. latency" profile doesn't vary by it. As shown in the figure below, there is little difference between the benchmark outcomes of the same system using `max_model_len` range between `2000`  to `128000`. 
 
 <p align="center">
-  <img src="./renders/1xH100-80GB-SXM_Meta-Llama-3.1-8B-FP8.png" alt="1xH100-80GB-SXM_Meta-Llama-3.1-8B-FP8" width="30%" />
-  <img src="./renders/2xH100-80GB-SXM_Meta-Llama-3.1-70B-Instruct-FP8.png" alt="2xH100-80GB-SXM_Meta-Llama-3.1-70B-Instruct-FP8" width="30%" />
-  <img src="./renders/8xH100-80GB-SXM_Hermes-3-Llama-3.1-405B-FP8.png" alt="8xH100-80GB-SXM_Hermes-3-Llama-3.1-405B-FP8" width="30%" />
+  <img src="./renders/1xH100-80GB-SXM_Meta-Llama-3.1-8B-FP8.png" alt="1xH100-80GB-SXM_Meta-Llama-3.1-8B-FP8" width="45%" />
+  <img src="./renders/2xH100-80GB-SXM_Meta-Llama-3.1-70B-Instruct-FP8.png" alt="2xH100-80GB-SXM_Meta-Llama-3.1-70B-Instruct-FP8" width="45%" />
+  <!-- <img src="./renders/8xH100-80GB-SXM_Hermes-3-Llama-3.1-405B-FP8.png" alt="8xH100-80GB-SXM_Hermes-3-Llama-3.1-405B-FP8" width="30%" /> -->
 </p>
 
 
 ### H100 v.s. A100
 The performance gap between NVIDIA H100 80GB SXM and A100 80GB SXM varies from model to model. Overall H100 can deliver around 2x higher throughput and 2x lower latency. As an example, for serving `Mistral-7B-Instruct-v0.3`, `1xH100` delivers 2.06x higher througput and 2.07x lower latency. For serving `Hermes-3-Llama-3.1-405B-FP8`, `8xH100` delivers 2.65x higher throughput and 2.45x lower latency. 
 
+
+### vLLM v0.5.4 v.s. v0.6.0
+This benchmark was conducted with vLLM `v0.5.4`. We observed major improvements with the latest version, `v0.6.0`, particularly in reducing CPU overhead. Our tests confirm that `v0.6.0` more than doubles output throughput and reduces Median Time Per Output Token (TPOT) for Llama 3.1 8B and 70B models. This is largely thanks to the multi-step scheduling feature (`num-scheduler-steps=10`). The performance gain is smaller for the Llama 405B model, likely due to its heavier computation where CPU bottlenecks are less significant.
+
+A key improvement in `v0.6.0` is higher GPU utilization. For example, in the Llama 3.1 8B benchmark, GPU power draw increased from `~60%` in `v0.5.4` to `~95%`.
+
+One "tradeoff" is the higher median inter-token latency (ITL) in `v0.6.0`, as [reported by other community contributors](https://github.com/sgl-project/sglang/tree/main/benchmark/benchmark_vllm_060). Since tokens are streamed only after a batch of generation steps is complete, ITL will be inflated by the `num-scheduler-steps`. This can cause some "chunkiness" in streaming, but it’s unlikely to affect user experience since most LLM services stream faster than the human reading speed.
+
+The tables below compare the performance of `v0.5.4`, `v0.6.0+step1`, and `v0.6.0+step10` across three different Llama 3.1 models. The impact of `num-scheduler-steps` is clear, showing significant improvements in output throughput and Median TPOT. We set requests per second (`rps`) to `inf` to simulate high inbound traffic. For all tests, we set `max-num-seq=256` and `max-seq-len=2048`. As of this writing, the vLLM team is working on [PR#8001](https://github.com/vllm-project/vllm/pull/8001) to support `num-scheduler-steps` with chunked prefill, allowing the latest optimizations to run at full context length for large models.
+
+`Llama 3.1 8B`: `tp=1`, `rps=inf`, `num-prompt=5000`, `max-num-seq=256`, `max-seq-len=2048`
+| vLLM version | Chuncked Prefill | Scheduler Steps | Output Throughput (tokens/sec) | Median TPOT (ms) | Median ITL (ms) |
+|--------------|------------------|-----------------|--------------------------------|------------------|-----------------|
+| v0.5.4       | True             | N/A             | 3032.04           | 64.06       | 48.28      | 
+| v0.6.0       | False            | 1               | 3958.40           | 196.24      | 179.17     | 
+| v0.6.0       | False            | 10              | 8088.35           | 25.57       | 243.76     | 
+
+
+`Llama 3.1 70B`: `tp=4`, `rps=inf`, `num-prompt=5000`, `max-num-seq=256`, `max-seq-len=2048`
+| vLLM version | Chuncked Prefill | Scheduler Steps | Output Throughput (tokens/sec) | Median TPOT (ms) | Median ITL (ms) |
+|--------------|------------------|-----------------|--------------------------------|------------------|-----------------|
+| v0.5.4       | True             | N/A             | 1491.93           | 125.78      | 74.22      | 
+| v0.6.0       | False            | 1               | 2291.0            | 102.99      | 63.54      | 
+| v0.6.0       | False            | 10              | 3542.88           | 61.10       | 574.07     | 
+
+
+`Llama 3.1 405B FP8`: `tp=8`, `rps=inf`, `num-prompt=1280`, `max-num-seq=256`, `max-seq-len=2048`
+| vLLM version | Chuncked Prefill | Scheduler Steps | Output Throughput (tokens/sec) | Median TPOT (ms) | Median ITL (ms) |
+|--------------|------------------|-----------------|--------------------------------|------------------|-----------------|
+| v0.5.4       | True             | N/A             | 1220.26           | 182.72      | 144.06     | 
+| v0.6.0       | False            | 1               | 1331.25           | 163.52      | 114.42     | 
+| v0.6.0       | False            | 10              | 1714.07           | 112.20      | 1036.33    | 
+
+
 ## Conclusion
 The benchmarks demonstrate that NVIDIA H100 GPUs significantly outperform A100 GPUs, especially when handling larger models like the Llama and Mistral families. By leveraging tensor parallelism and optimizing batch sizes, the vLLM framework effectively balances throughput and latency, making it a powerful tool for large-scale LLM inference. For those aiming to optimize performance in similar contexts, utilizing H100 GPUs and adjusting parallelism settings may be particularly effective.
+
