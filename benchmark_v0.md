@@ -23,7 +23,7 @@ __Benchmark settings__: The [default vLLM settings](https://docs.vllm.ai/en/late
 * `--tensor-parallel-size`: Defines how to splits a model across multiple GPUs, so to serve models that are too large to fit on a single GPU.
 * `--num-prompts`: Beside vLLM settings, The [benchmark script](https://github.com/vllm-project/vllm/blob/main/benchmarks/benchmark_serving.py) provides these argument to control the number of requests. Notice vLLM will [automatically batch](https://github.com/vllm-project/vllm/issues/1707#issuecomment-1816797973) these requests in a optimzed way, as long as they are [sent asynchronously](https://github.com/vllm-project/vllm/issues/2257#issuecomment-1869400614) (as implemented in the [benchmark script](https://github.com/vllm-project/vllm/blob/main/benchmarks/benchmark_serving.py)).
 
-__Metrics__: Our benchmarks monitor `Output token throughput` and `Inter-token Latency`. Both of them are important performance metrices for LLM inference. As we will show later, there is also a trade-off between them: one can increase the overall throughput by increasing the batch size, at the cost of increasing the latency. We captured such a trade off by conducting benchmarks with different values for the aforementioned `--num-prompts` parameter.
+__Metrics__: Our benchmarks monitor `Output token throughput` and `Inter-token Latency`. Both of them are important performance metrics for LLM inference. As we will show later, there is also a trade-off between them: one can increase the overall throughput by increasing the batch size, at the cost of increasing the latency. We captured such a trade off by conducting benchmarks with different values for the aforementioned `--num-prompts` parameter.
 
 
 ## Results
@@ -45,7 +45,7 @@ The max context length that can be served for a specific model depends on GPU's 
 
 
 ### Throughput v.s. Latency curve
-One very useful way to understand the performance is through the lens of the "throughput v.s. latency" graph, produced by changing the batch size used for inference. As mentioned earlier, there is usually a trade off between these two metrics: as the batch size increases, inference changes from being memory bandwidth bottlenecked (low latency, low throughput) to being compute bottlenecked (high latency, high throughput). The graph will eventually platuea when all NVIDIA tensor cores are staturated -- adding more data to a batch won't improve the throughput anymore.
+One very useful way to understand the performance is through the lens of the "throughput v.s. latency" graph, produced by changing the batch size used for inference. As mentioned earlier, there is usually a trade off between these two metrics: as the batch size increases, inference changes from being memory bandwidth bottlenecked (low latency, low throughput) to being compute bottlenecked (high latency, high throughput). The graph will eventually plateau when all NVIDIA tensor cores are staturated -- adding more data to a batch won't improve the throughput anymore.
 
 Each of the following graphs shows the "throughput v.s. latency" profile for a specific model across different GPUs. The stronger performance profiles are closer to the top left corner (lower latency, higher throughput). Despite both NVIDIA A100 and H100 have the same amount of GPU ram (`80GB`), it is clear that the faster GPU (NVIDIA H100) and more GPUs (enables tensor parallelization) give stronger performance. 
 
@@ -66,7 +66,7 @@ Similarly, we can plot the "throughput v.s. latency" profile for the same GPU bu
 
 
 ### Tensor Parallel v.s. Data Parallel
-Which is a better way to scale the performance? Is it better to scale vertically using tensor parallelism, or is it better to scale horizontally with daa parallelism. The former gives you a "beefier" processor by combining the memory and tensor cores from multiple GPUs, at the cost of inter-device communication; while the later keep each GPUs independent so you have a fleet of less powerful devices. 
+Which is a better way to scale the performance? Is it better to scale vertically using tensor parallelism, or is it better to scale horizontally with data parallelism. The former gives you a "beefier" processor by combining the memory and tensor cores from multiple GPUs, at the cost of inter-device communication; while the later keep each GPUs independent so you have a fleet of less powerful devices. 
 
 The following figures illustrate the different characteristics of these two parallelism strategies. To do so, we doubled the number of GPUs and applied either DP to horizontally scale the system, or TP to vertically scale the system. We also double the number of prompts used in the system so to make sure data parallelism could double its throughput while keeping the latency unaffected. Our benchmark showed tensor parallelism runs at lower latencies, while data parallelism runs at higher throughputs. 
 
