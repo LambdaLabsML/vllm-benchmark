@@ -10,7 +10,7 @@ In this report, we benchmark LLM inference across NVIDIA A100 and H100 GPUs, usi
 * NVIDIA H100 offers ~`2x` better throughput and lower latency than A100.
 * vLLM v0.6.0 doubles output throughput and reduces Time Per Output Token (TPOT).
 
-For users interested in self-hosting Llama 3.1 with vLLM, follow [this tutorial]((https://docs.lambdalabs.com/on-demand-cloud/how-to-serve-the-llama-3.1-8b-and-70b-models-using-lambda-cloud-on-demand-instances?utm_source=linkedin&utm_medium=organic-social&utm_campaign=2024-09-vLLM-Benchmark-Report&utm_content=post-a)) to deploy the model on [Lambda's Public Cloud](https://lambdalabs.com/service/gpu-cloud).
+You can reproduce the benchmark with [this guide](https://github.com/LambdaLabsML/vllm-benchmark/blob/main/README.md). For users interested in self-hosting Llama 3.1 with vLLM, follow [this tutorial]((https://docs.lambdalabs.com/on-demand-cloud/how-to-serve-the-llama-3.1-8b-and-70b-models-using-lambda-cloud-on-demand-instances?utm_source=linkedin&utm_medium=organic-social&utm_campaign=2024-09-vLLM-Benchmark-Report&utm_content=post-a)) to deploy the model on [Lambda's Public Cloud](https://lambdalabs.com/service/gpu-cloud).
 
 ## Benchmark Design
 
@@ -142,5 +142,7 @@ The tables below compare the performance of `v0.5.4`, `v0.6.0+step1`, and `v0.6.
 ## Conclusion
 The benchmarks demonstrate that NVIDIA H100 GPUs significantly outperform A100 GPUs, especially when handling larger models like the Llama and Mistral families. By leveraging tensor parallelism and optimizing batch sizes, the vLLM framework effectively balances throughput and latency, making it a powerful tool for large-scale LLM inference. For those aiming to optimize performance in similar contexts, utilizing H100 GPUs and adjusting parallelism settings may be particularly effective.
 
-For users interested in self-hosting Llama 3.1 with vLLM, follow [this tutorial]((https://docs.lambdalabs.com/on-demand-cloud/how-to-serve-the-llama-3.1-8b-and-70b-models-using-lambda-cloud-on-demand-instances?utm_source=linkedin&utm_medium=organic-social&utm_campaign=2024-09-vLLM-Benchmark-Report&utm_content=post-a)) to deploy the model on [Lambda's Public Cloud](https://lambdalabs.com/service/gpu-cloud)
+You can reproduce the benchmark with [this guide](https://github.com/LambdaLabsML/vllm-benchmark/blob/main/README.md). For users interested in self-hosting Llama 3.1 with vLLM, follow [this tutorial]((https://docs.lambdalabs.com/on-demand-cloud/how-to-serve-the-llama-3.1-8b-and-70b-models-using-lambda-cloud-on-demand-instances?utm_source=linkedin&utm_medium=organic-social&utm_campaign=2024-09-vLLM-Benchmark-Report&utm_content=post-a)) to deploy the model on [Lambda's Public Cloud](https://lambdalabs.com/service/gpu-cloud)
 
+## Acknowledgement
+We thank the [vLLM team](https://github.com/vllm-project/vllm) for providing their insights during this study. 
