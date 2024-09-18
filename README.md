@@ -1,5 +1,5 @@
 
-# VLLM Benchmark
+# vLLM Benchmark
 
 ## Set Up Repo And Dataset
 ```bash
