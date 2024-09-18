@@ -58,7 +58,7 @@ Each of the following graphs shows the "throughput v.s. latency" profile for a s
 </p>
 
 
-Similarly, we can plot the "throughput v.s. latency" profile for the same GPU but across different models. It is no surprise that given the same GPU, the profile of smaller models are closer to the top left. And in general serving larger models require more GPUs, as some of the models are missing from the 1x and 2x figures.
+Similarly, we can plot the "throughput v.s. latency" profile for the same GPU but across different models. It is no surprise that given the same GPU, the profile of smaller models are closer to the top left. And in general serving larger models require more GPUs, as some of the models are missing from the 1xH100 figure (left).
 
 <p align="center">
   <img src="./renders_v0/1xH100-80GB-SXM.png" alt="1xH100-80GB-SXM" width="45%" />
